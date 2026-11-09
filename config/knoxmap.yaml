@@ -9,4 +9,4 @@ standalone: true                 # set through KnoxMap's own /api/placement rout
 cell_size: 300                   # KnoxMap source-cell size in tiles (D-08); PA's own cell size is config/world.yaml
 cells: [[0, 0, 0, 0]]            # source cells to compile (x0,y0,x1,y1), overridable with `pa build --cells`
 # Network-backed optional data layers are switched off so nothing leaves the machine.
-settings: {landcover: "off", elevation: "flat", hospitals: "off", ne_context: 0, fill_gaps: 0}
+settings: {landcover: "off", elevation: "flat", hospitals: "off", ne_context: 0, fill_gaps: 0, basement_share: 0, max_basement_depth: 0}  # no basements: only knoxlots (rust) can compile them, and the spike targets PZWorldEd_cli

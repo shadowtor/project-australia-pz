@@ -173,3 +173,13 @@ def test_hand_authored_project(env, monkeypatch):
     assert not any("app.app.run" in " ".join(c) or "knoxbuild" in " ".join(c) for c in calls)
     with pytest.raises(build.BuildError, match="existing .pzw"):
         build.build(pins, cfg, tmp / "w2", project=tmp / "nope.pzw", mod_id="x")
+
+
+def test_basement_settings_reach_generate(env):
+    pins, cfg, tmp, _ = env
+    cfg.write_text(CFG.replace('{landcover: "off"}', '{landcover: "off", basement_share: 0, max_basement_depth: 0}'), encoding="utf-8")
+    w = build.build(pins, cfg, tmp / "w")
+    s = json.loads((w / "knoxmap" / "output" / "fakemap" / "request.json").read_text())["settings"]
+    assert s["max_basement_depth"] == 0 and s["basement_share"] == 0
+    real = build.load_cfg(ROOT / "config" / "knoxmap.yaml")["settings"]
+    assert real["max_basement_depth"] == 0
