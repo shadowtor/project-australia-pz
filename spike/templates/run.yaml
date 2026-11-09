@@ -1,0 +1,17 @@
+# Copy to spike/evidence/<feature>/<attempt>/run.yaml and fill in. Check with:
+#   .venv/Scripts/python -m pa decision check --feature <feature> --evidence spike/evidence
+# Features and groups: ramp [main], basement [main], ferry [foot, vehicle].
+# Required directions (3 passes each for PROVEN): ramp up+down, basement in+out, ferry round_trip per group.
+build: "42.22.2"
+mod_version: "0.0.0"        # quote it
+date: "2026-01-01"          # quote it
+implementation: ""          # short label of the approach tried; RULED OUT needs two different labels
+trials:
+  # single-group features omit `group` (defaults to main); ferry trials set group: foot or vehicle
+  - {n: 1, group: main, direction: up, pass: true, note: ""}
+reload_result: pass         # pass | fail | not_run. Ferry: a mapping {foot: pass, vehicle: pass}
+console_errors: []          # lines copied from console.txt, if any
+screenshots: []             # file names inside this attempt dir, at least one for PROVEN / RULED OUT
+next_step: ""
+logged_cause: ""            # required for RULED OUT: console.txt line or visible symptom plus likely engine reason
+verdict: INCONCLUSIVE       # PROVEN | RULED OUT | INCONCLUSIVE. Ferry uses `verdicts: {foot: ..., vehicle: ...}` instead
