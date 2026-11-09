@@ -1,0 +1,9 @@
+[project]
+name = "project-australia"
+version = "0.0.0"
+requires-python = ">=3.13"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-m 'not integration'"
+markers = ["integration: slow tests needing the game or external tools"]
