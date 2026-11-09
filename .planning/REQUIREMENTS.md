@@ -90,12 +90,45 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (filled by roadmapper) | | Pending |
+| BUILD-01 | Phase 1 | Pending |
+| BUILD-02 | Phase 1 | Pending |
+| BUILD-03 | Phase 1 | Pending |
+| BUILD-04 | Phase 1 | Pending |
+| BUILD-05 | Phase 1 | Pending |
+| PILOT-05 | Phase 1 | Pending |
+| PILOT-06 | Phase 1 | Pending |
+| PILOT-01 | Phase 2 | Pending |
+| PILOT-02 | Phase 2 | Pending |
+| PILOT-03 | Phase 2 | Pending |
+| PILOT-04 | Phase 2 | Pending |
+| SCALE-01 | Phase 2 | Pending |
+| BUILD-06 | Phase 2 | Pending |
+| MAP-01 | Phase 3 | Pending |
+| ROAD-01 | Phase 3 | Pending |
+| ROAD-02 | Phase 3 | Pending |
+| ROAD-03 | Phase 3 | Pending |
+| ROAD-04 | Phase 3 | Pending |
+| SCALE-02 | Phase 3 | Pending |
+| PLAY-01 | Phase 3 | Pending |
+| PLAY-02 | Phase 3 | Pending |
+| MAP-02 | Phase 4 | Pending |
+| MAP-03 | Phase 4 | Pending |
+| MAP-04 | Phase 4 | Pending |
+| PLAY-03 | Phase 4 | Pending |
+| PLAY-04 | Phase 4 | Pending |
+| REL-01 | Phase 5 | Pending |
+| REL-02 | Phase 5 | Pending |
+| REL-03 | Phase 5 | Pending |
+| TAS-01 | Phase 6 | Pending |
+| TAS-02 | Phase 6 | Pending |
+| TAS-03 | Phase 6 | Pending |
+| TAS-04 | Phase 6 | Pending |
+| TAS-05 | Phase 6 | Pending |
 
 **Coverage:**
-- v1 requirements: 33 total
-- Mapped to phases: 0
-- Unmapped: 33 ⚠️
+- v1 requirements: 34 total
+- Mapped to phases: 34
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-11-09*
