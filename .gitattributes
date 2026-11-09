@@ -1,0 +1,4 @@
+*.manifest text eol=lf
+PINS.toml text eol=lf
+requirements.lock text eol=lf
+ledger/*.txt text eol=lf
