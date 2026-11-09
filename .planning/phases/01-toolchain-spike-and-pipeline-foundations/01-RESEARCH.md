@@ -346,7 +346,7 @@ common/media/maps/<Map Name>/{*.lotheader,*.lotpack,chunkdata_*.bin,map.info,spa
 | A9 | KnoxMap `standalone` placement is set per project (`placement.standalone(project_dir)`); how the user sets it is not shown | Open Questions | Spike may need the UI "Game world" toggle once; record the resulting project file |
 | A10 | Real USA is installed? RESOLVED by user: not installed; baseline is vanilla only | Vanilla baselines | none |
 
-## Open Questions
+## Open Questions (RESOLVED or ASSIGNED)
 
 **Resolution status (revision pass 1):** every question below is resolved or assigned to a named plan task.
 

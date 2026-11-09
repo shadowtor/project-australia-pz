@@ -48,8 +48,8 @@ Local unit tests only; no deployed test environment applies to a game mod. In-ga
 | 01-05-T1, 01-08-T2 | 05, 08 | 3, 4 | BUILD-04 | failed build leaves last export intact, incl. a real failing compile through `pa build` -> `pa release --payload` | failure injection + real path | unit + integration | `pytest tests/test_release.py`; `pytest tests/test_real_integration.py -m integration` | ❌ W0 | ⬜ pending |
 | 01-05-T2, 01-09-T2 | 05, 09 | 3, 5 | BUILD-05 | attribution and licence ledger present and visible | ledger check + in-game | unit + manual | `pytest tests/test_ledger.py` | ❌ W0 | ⬜ pending |
 | 01-07-T1, 01-07-T2, 01-09-T1..T3, 01-12-T1 | 07, 09, 12 | 3, 5, 7 | PILOT-05 | decision record complete (format, count, size, load time, FPS, stream-in); budgets frozen for every dimension | stats + manual | unit + manual | `pytest tests/test_stats.py tests/test_decision_record.py`; `pa decision check`; `pa validate --budgets --stats` | ❌ W0 | ⬜ pending |
-| 01-10-T1..T3 | 10 | 5 | PILOT-06 | D-02 verdict rules enforced per group (ferry foot, vehicle) | evidence schema + manual | unit + manual | `pa decision check --feature ferry --evidence spike/evidence` | ❌ W0 | ⬜ pending |
-| 01-11-T1..T3 | 11 | 6 | PILOT-06 | D-02 verdict rules enforced (ramp, basement) | evidence schema + manual | unit + manual | `pa decision check --feature <f> --evidence spike/evidence` | ❌ W0 | ⬜ pending |
+| 01-10-T1..T3 | 10 | 6 | PILOT-06 | D-02 verdict rules enforced per group (ferry foot, vehicle) | evidence schema + manual | unit + manual | `pa decision check --feature ferry --evidence spike/evidence` | ❌ W0 | ⬜ pending |
+| 01-11-T1..T3 | 11 | 7 | PILOT-06 | D-02 verdict rules enforced (ramp, basement) | evidence schema + manual | unit + manual | `pa decision check --feature <f> --evidence spike/evidence` | ❌ W0 | ⬜ pending |
 | 01-01-T3 | 01 | 1 | BUILD-01..04 (tracer) | thin end-to-end slice | tracer on fixtures | unit | `pytest tests/test_tracer.py` | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky. Task IDs are filled in by the planner.*
