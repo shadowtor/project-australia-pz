@@ -1,0 +1,3 @@
+# data_dir holds large downloads (F: has little free space); recorded in PINS by path+hash only
+data_dir: D:/PA
+cell_size: 256
