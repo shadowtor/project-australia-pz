@@ -40,12 +40,15 @@ Local unit tests only; no deployed test environment applies to a game mod. In-ga
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 01-xx | TBD | TBD | BUILD-01 | tool supply chain | every downloaded tool hash-verified against PINS | unit + integration | `pytest tests/test_pins.py`; `pa build --check-repeat` | ❌ W0 | ⬜ pending |
-| 01-xx | TBD | TBD | BUILD-02 | — | hand edits never overwritten; orphans reported | unit | `pytest tests/test_regen.py tests/test_orphans.py` | ❌ W0 | ⬜ pending |
-| 01-xx | TBD | TBD | BUILD-03 | — | gates fail naming region and cell | unit | `pytest tests/test_gates.py` | ❌ W0 | ⬜ pending |
-| 01-xx | TBD | TBD | BUILD-04 | — | failed build leaves last export intact | unit | `pytest tests/test_release.py` | ❌ W0 | ⬜ pending |
-| 01-xx | TBD | TBD | BUILD-05 | — | attribution and licence ledger present | unit | `pytest tests/test_ledger.py` | ❌ W0 | ⬜ pending |
-| 01-xx | TBD | TBD | PILOT-05, PILOT-06 | — | decision record complete, verdict rules enforced | unit + manual | `pytest tests/test_decision_record.py`; `pa stats <map_dir>` | ❌ W0 | ⬜ pending |
+| 01-02-T1, 01-02-T2 | 02 | 2 | BUILD-01 | tool supply chain | every downloaded tool hash-verified against PINS | unit + integration | `pytest tests/test_pins.py`; `pa pins verify` | ❌ W0 | ⬜ pending |
+| 01-06-T1, 01-08-T1 | 06, 08 | 3, 4 | BUILD-01 | offline build, no live pull | proxy-poisoned repeat build, identical manifests | unit + integration | `pytest tests/test_build_wrapper.py`; `pa build --check-repeat` | ❌ W0 | ⬜ pending |
+| 01-03-T1, 01-03-T2, 01-08-T2 | 03, 08 | 2, 4 | BUILD-02 | edits never overwritten; orphans reported | regen + perturbation | unit + integration | `pytest tests/test_regen.py tests/test_orphans.py` | ❌ W0 | ⬜ pending |
+| 01-04-T1, 01-04-T2, 01-08-T2 | 04, 08 | 2, 4 | BUILD-03 | gates fail naming region and cell | broken-world fixtures | unit + integration | `pytest tests/test_gates.py` | ❌ W0 | ⬜ pending |
+| 01-05-T1 | 05 | 2 | BUILD-04 | failed build leaves last export intact | failure injection | unit | `pytest tests/test_release.py` | ❌ W0 | ⬜ pending |
+| 01-05-T2, 01-09-T2 | 05, 09 | 2, 5 | BUILD-05 | attribution and licence ledger present and visible | ledger check + in-game | unit + manual | `pytest tests/test_ledger.py` | ❌ W0 | ⬜ pending |
+| 01-07-T1, 01-07-T2, 01-09-T1..T3, 01-12-T1 | 07, 09, 12 | 2, 5, 6 | PILOT-05 | decision record complete; budgets frozen | stats + manual | unit + manual | `pytest tests/test_stats.py tests/test_decision_record.py`; `pa decision check` | ❌ W0 | ⬜ pending |
+| 01-10-T1..T3, 01-11-T1..T3 | 10, 11 | 5 | PILOT-06 | D-02 verdict rules enforced | evidence schema + manual | unit + manual | `pa decision check --feature <f> --evidence spike/evidence` | ❌ W0 | ⬜ pending |
+| 01-01-T3 | 01 | 1 | BUILD-01..04 (tracer) | thin end-to-end slice | tracer on fixtures | unit | `pytest tests/test_tracer.py` | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky. Task IDs are filled in by the planner.*
 
