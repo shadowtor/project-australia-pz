@@ -74,7 +74,24 @@ manifest = "ledger/tools.manifest"
 [trees.knoxmap]
 dir = "D:/PA/vendor/KnoxMap-1.8.5.5"
 manifest = "ledger/knoxmap.manifest"
+exclude = ["KnoxMap/.venv"]  # venv is hash-locked separately via [knoxmap_venv]
 
-# Task 3 (checkpoint) locks this after per-package human review.
+# Locked after per-package human review (T-01-SC). Python runs against this venv must use `-I -B`
+# (pa.pins.venv_cmd); Scripts/ launchers are not hashed and must not be executed.
 [knoxmap_venv]
-status = "pending"
+status = "locked"
+python_version = "3.13.14"
+venv_python = "D:/PA/vendor/KnoxMap-1.8.5.5/KnoxMap/.venv/Scripts/python.exe"
+requirements_file = "ledger/knoxmap-requirements.txt"
+requirements_sha256 = "2d5b2d7e780b6e5bf74cb8662f48276c3230ea8d0c2f3ced03ea07c510c4fb13"
+site_packages_manifest = "ledger/knoxmap-venv.manifest"
+site_packages_manifest_sha256 = "a79272992caf61b8a475d1161a28978fea5e867ee3d01dfd8d071188710144c3"
+reviewed_by = "user"
+reviewed_date = "2026-11-10"
+proxy_tools_build = "hand-built-from-sdist"
+proxy_tools_wheel = "D:/PA/vendor/wheels/proxy_tools-0.1.0-py3-none-any.whl"
+proxy_tools_wheel_sha256 = "58255ab0cfc8889c6399bfb9c430b664e1f727cce96fb70a12dd0bf700c8d4f6"
+proxy_tools_sdist_sha256 = "ccb3751f529c047e2d8a58440d86b205303cf0fe8146f784d1cbcd94f0a28010"
+proxy_tools_builder = "tools/make_proxy_tools_wheel.py"
+source_build_approved_by = "user"
+source_build_approved_date = "2026-11-10"

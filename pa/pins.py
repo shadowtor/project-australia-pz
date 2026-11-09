@@ -22,14 +22,17 @@ def _norm(name):
     return re.sub(r"[-_.]+", "-", name).lower()
 
 
-def tree_manifest(root, skip_pyc=False):
-    """Sorted `relpath sha256` lines (forward slashes). skip_pyc ignores __pycache__ and *.pyc."""
+def tree_manifest(root, skip_pyc=False, exclude=()):
+    """Sorted `relpath sha256` lines (forward slashes). skip_pyc ignores __pycache__ and *.pyc;
+    exclude skips relative dir prefixes (e.g. a venv living inside the tree)."""
     root = pathlib.Path(root)
     lines = []
     for p in root.rglob("*"):
         if not p.is_file():
             continue
         rel = p.relative_to(root)
+        if any(rel.as_posix().startswith(e.rstrip('/') + '/') for e in exclude):
+            continue
         if skip_pyc and ("__pycache__" in rel.parts or p.suffix == ".pyc"):
             continue
         lines.append(f"{rel.as_posix()} {_sha(p)}")
@@ -148,6 +151,9 @@ def _check_venv(v, base, allow_pending, bad):
     if have != want:
         diff = sorted(set(have.items()) ^ set(want.items()))
         bad.append(("knoxmap_venv", f"installed set != reviewed list: {diff}"))
+    stray = [p.relative_to(sp).as_posix() for p in sp.rglob("*.pyc") if p.parent.name != "__pycache__"]
+    if stray:  # sourceless bytecode runs without any source to hash
+        bad.append(("knoxmap_venv", f"sourceless .pyc outside __pycache__: {stray[:5]}"))
     man = tree_manifest(sp, skip_pyc=True)
     if hashlib.sha256(man.encode()).hexdigest() != v.get("site_packages_manifest_sha256"):
         bad.append(("knoxmap_venv", "site-packages manifest hash mismatch"))
@@ -181,7 +187,7 @@ def check(pins_path, allow_pending_venv=False):
         root, man = _path(base, t.get("dir", "")), _path(base, t.get("manifest", ""))
         if not root.is_dir() or not man.is_file():
             bad.append((name, "tree or manifest missing"))
-        elif tree_manifest(root) != man.read_text(encoding="utf-8"):
+        elif tree_manifest(root, exclude=t.get("exclude", ())) != man.read_text(encoding="utf-8"):
             bad.append((name, "tree manifest mismatch (added/altered/removed file)"))
     if "game" in d:
         n += 1
@@ -208,6 +214,12 @@ def check(pins_path, allow_pending_venv=False):
 def verify(pins_path, allow_pending_venv=False):
     """List of (item, reason) mismatches; empty means everything verified."""
     return check(pins_path, allow_pending_venv)[0]
+
+
+def venv_cmd(pins_path):
+    """argv prefix for any run against the locked KnoxMap venv: isolated, no bytecode writes (-B)."""
+    v = tomllib.loads(pathlib.Path(pins_path).read_text(encoding="utf-8"))["knoxmap_venv"]
+    return [str(_path(pathlib.Path(pins_path).parent, v["venv_python"])), "-I", "-B"]
 
 
 def _cmd_verify(a):
