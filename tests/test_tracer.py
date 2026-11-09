@@ -24,7 +24,7 @@ def make_fixture(root, bad_pixel=False):
     gen.write_text("....\n....\n", encoding="utf-8")
     digest = hashlib.sha256(gen.read_bytes()).hexdigest()
     (root / "PINS.toml").write_text(f'[files]\n"generated/cell_0_0.txt" = "{digest}"\n', encoding="utf-8")
-    (root / "edits" / "e1.yaml").write_text("cell: 0_0\ntile: [1, 1]\nchar: X\n", encoding="utf-8")
+    (root / "edits" / "e1.yaml").write_text("cell: '0_0'\ntile: [1, 1]\nchar: X\n", encoding="utf-8")
     (root / "palette.txt").write_text("10 20 30\n", encoding="utf-8")
     img = Image.new("RGB", (4, 4), GOOD)
     if bad_pixel:
