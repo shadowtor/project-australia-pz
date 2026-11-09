@@ -1,0 +1,80 @@
+# Single source of pinned versions and checksums (D-11). Verified by `pa pins verify`.
+# Large downloads live in data_dir (config/world.yaml, D:/PA) and are recorded by path+hash only.
+
+[game]
+version = "42.22.2"
+branch = "stable"
+buildid = "26486631"
+manifest_path = "C:/Program Files (x86)/Steam/steamapps/appmanifest_108600.acf"
+recheck_42_22 = "done: pinned directly to 42.22.2 (plan 01-01 user decision); 42.21 recheck superseded"
+
+[python]
+version = "3.13.14"
+requirements_lock = "requirements.lock"
+requirements_lock_sha256 = "875d46fe5c627c3c37ef4f5940bbe5997f6cd772d4260002743df3472a5bba49"
+
+[tools.active]
+version = "43.00B261030"
+zip = "D:/PA/downloads/PZ_Mapping_Tools_build20261030.zip"
+sha256 = "d8913719f9e8dbc194cc829835512f5e364e2fb098e5cc90c3dd3e9eef7f0e1c"
+selected_by = "user-decision-after-research"
+
+# Known-compatible fallback (KnoxMap CLI built on 260909). NEVER switched to silently:
+# plan 01-06 Task 3 asks the user; only an explicit answer yields selected_by = "user-approved-switch".
+[tools.fallback]
+version = "43.00B260909"
+zip = "D:/PA/downloads/PZ_Mapping_Tools_build20260909f.zip"
+sha256 = "2ee15e812bffda6e241c26a2eb2a8f6cd03b0b27bf5899f40196a703f29b5b17"
+status = "inactive"
+
+[knoxmap]
+tag = "1.8.5.5"
+tag_object = "14bdc1dd9da0550e419a5434a3ea26b64d15aba3"
+commit = "5d265df6ac64cccf6098c76315135bba10a8ec2d"
+auto_update = false  # plan 01-06 enforces
+
+[external.tools_261030_zip]
+path = "D:/PA/downloads/PZ_Mapping_Tools_build20261030.zip"
+url = "https://github.com/Unjammer/PZ_Mapping_Tools/releases/download/43.00B261030/PZ_Mapping_Tools_build20261030.zip"
+sha256 = "d8913719f9e8dbc194cc829835512f5e364e2fb098e5cc90c3dd3e9eef7f0e1c"
+
+[external.tools_260909_zip]
+path = "D:/PA/downloads/PZ_Mapping_Tools_build20260909f.zip"
+url = "https://github.com/Unjammer/PZ_Mapping_Tools/releases/download/43.00B260909/PZ_Mapping_Tools_build20260909f.zip"
+sha256 = "2ee15e812bffda6e241c26a2eb2a8f6cd03b0b27bf5899f40196a703f29b5b17"
+
+[external.knoxmap_zip]
+path = "D:/PA/downloads/KnoxMap-v1.8.5.5-windows.zip"
+url = "https://github.com/spytheeuclidean-a11y/knoxmap/releases/download/1.8.5.5/KnoxMap-v1.8.5.5-windows.zip"
+sha256 = "1b65a3213cac92c8a30990a426d01abb634d099db7a05ccd6b7413e6adc27cea"
+
+[external.worlded_cli]
+path = "D:/PA/downloads/PZWorldEd_cli.exe"
+url = "https://github.com/spytheeuclidean-a11y/knoxmap/releases/download/worlded-cli-20260909f/PZWorldEd_cli.exe"
+sha256 = "dbae186f1f1f541decd123604ec9fc822d930f8f7c1ec8b17c1b89874628f3e2"
+
+[external.knoxmap_licenses]
+path = "D:/PA/downloads/KnoxMap-LICENSES-1.8.5.5.md"
+url = "https://raw.githubusercontent.com/spytheeuclidean-a11y/knoxmap/1.8.5.5/LICENSES.md"
+sha256 = "e57938de9eb07605ff5d252a49b453e98254eb3ee51204c1a2b3fae5d693a5b7"
+
+[external.osm_pbf]
+path = "D:/PA/downloads/australia-261108.osm.pbf"
+url = "https://download.geofabrik.de/australia-oceania/australia-261108.osm.pbf"
+md5 = "02b472d2aee85e865a6afd44fa00d30c"
+# own SHA-256, trust-on-first-use (Geofabrik publishes MD5 only, T-01-05)
+sha256 = "8f58693fef603a61e7af65b0f464b18a7e82b675abdc0504f51e354d51faf27f"
+size = 973794719
+downloaded = "2026-11-09"
+
+[trees.tools_active]
+dir = "D:/PA/vendor/PZMappingTools-43.00B261030"
+manifest = "ledger/tools.manifest"
+
+[trees.knoxmap]
+dir = "D:/PA/vendor/KnoxMap-1.8.5.5"
+manifest = "ledger/knoxmap.manifest"
+
+# Task 3 (checkpoint) locks this after per-package human review.
+[knoxmap_venv]
+status = "pending"
