@@ -138,6 +138,9 @@ def test_tools_switch(tmp_path):
     assert check(tools_toml(tmp_path, selected="whatever"))
 
 
+HOME = "C:/base/Python313"
+
+
 # Test 7
 def venv_fixture(tmp_path, pkgs=(("foo", "1.0"), ("bar-baz", "2.1")), status="locked"):
     sp = tmp_path / "venv/Lib/site-packages"
@@ -145,13 +148,17 @@ def venv_fixture(tmp_path, pkgs=(("foo", "1.0"), ("bar-baz", "2.1")), status="lo
         write(sp / f"{n.replace('-', '_')}-{v}.dist-info/METADATA", f"Metadata-Version: 2.1\nName: {n}\nVersion: {v}\n")
         write(sp / n.replace("-", "_") / "__init__.py", f"# {n}")
     write(sp / "foo/__pycache__/x.pyc", b"\0")
-    write(tmp_path / "venv/Scripts/python.exe", b"")
+    write(tmp_path / "venv/Scripts/python.exe", b"launcher")
+    cfg = write(tmp_path / "venv/pyvenv.cfg", f"home = {HOME}\ninclude-system-site-packages = false\nversion = 3.13\n")
+    lman = write(tmp_path / "launcher.manifest", pins.tree_manifest(tmp_path / "venv", skip_pyc=True, exclude=("Lib/site-packages",)))
     req = write(tmp_path / "reqs.txt", "# header\nfoo==1.0 --hash=sha256:" + "a" * 64 + "\nbar-baz==2.1 --hash=sha256:" + "b" * 64 + "\n")
     man = write(tmp_path / "venv.manifest", pins.tree_manifest(sp, skip_pyc=True))
     t = (f'[knoxmap_venv]\nstatus = "{status}"\n' if status == "pending" else
          f'[knoxmap_venv]\nstatus = "locked"\npython_version = "3.13"\nvenv_python = "venv/Scripts/python.exe"\n'
          f'requirements_file = "reqs.txt"\nrequirements_sha256 = "{sha(req.read_bytes())}"\n'
          f'site_packages_manifest = "venv.manifest"\n'
+         f"base_python_home = '{HOME}'\npyvenv_cfg_sha256 = \"{sha(cfg.read_bytes())}\"\n"
+         f'launcher_manifest = "launcher.manifest"\nlauncher_manifest_sha256 = "{sha(lman.read_bytes())}"\n'
          f'site_packages_manifest_sha256 = "{sha(man.read_bytes())}"\nreviewed_by = "user"\nreviewed_date = "2026-11-11"\n')
     (tmp_path / "PINS.toml").write_text(t)
     return tmp_path / "PINS.toml", sp, req
@@ -220,3 +227,32 @@ def test_venv_sourceless_pyc_fails_and_pycache_ignored(tmp_path):
 def test_venv_cmd_flags(tmp_path):
     p, _, _ = venv_fixture(tmp_path)
     assert pins.venv_cmd(p)[1:] == ["-I", "-B"]
+
+
+def test_venv_launcher_valid_and_tamper(tmp_path):
+    p, sp, _ = venv_fixture(tmp_path)
+    v = tmp_path / "venv"
+    assert check(p) == []
+    write(v / "Scripts/python.exe", b"evil")  # altered launcher bytes
+    assert any("launcher manifest" in why for _, why in check(p))
+    write(v / "Scripts/python.exe", b"launcher")
+    assert check(p) == []
+    write(v / "Scripts/extra.exe", b"x")  # added file
+    assert any("launcher manifest" in why for _, why in check(p))
+    (v / "Scripts/extra.exe").unlink()
+    assert check(p) == []
+
+
+def test_venv_pyvenv_cfg(tmp_path):
+    p, sp, _ = venv_fixture(tmp_path)
+    cfg = tmp_path / "venv/pyvenv.cfg"
+    orig = cfg.read_bytes()
+    good = orig.decode()
+    cfg.write_text(good + "# x\n")  # altered
+    assert any("pyvenv.cfg sha256" in why for _, why in check(p))
+    cfg.write_bytes(good.replace("= false", "= true").encode())
+    assert any("include-system-site-packages" in why for _, why in check(p))
+    cfg.write_bytes(good.replace(HOME, "C:/evil").encode())
+    assert any("home" in why for _, why in check(p))
+    cfg.write_bytes(orig)
+    assert check(p) == []

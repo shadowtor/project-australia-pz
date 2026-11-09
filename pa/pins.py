@@ -121,6 +121,29 @@ def _check_tools(t, base, bad):
         bad.append(("tools.active", f"selected_by {sel!r} not recognised"))
 
 
+def _check_launcher(v, root, base, bad):
+    """Everything in the venv outside Lib/site-packages (launcher exes, pyvenv.cfg): read and hashed, never run."""
+    cfg = root / "pyvenv.cfg"
+    if not cfg.is_file():
+        return bad.append(("knoxmap_venv", "pyvenv.cfg missing"))
+    if _sha(cfg) != v.get("pyvenv_cfg_sha256"):
+        bad.append(("knoxmap_venv", "pyvenv.cfg sha256 mismatch"))
+    kv = {}
+    for line in cfg.read_text(encoding="utf-8", errors="replace").splitlines():
+        k, sep, val = line.partition("=")
+        if sep:
+            kv[k.strip().lower()] = val.strip()
+    if kv.get("include-system-site-packages", "").lower() != "false":
+        bad.append(("knoxmap_venv", "pyvenv.cfg include-system-site-packages is not false"))
+    if not v.get("base_python_home") or os.path.normcase(os.path.normpath(kv.get("home", ""))) != os.path.normcase(os.path.normpath(v["base_python_home"])):
+        bad.append(("knoxmap_venv", f"pyvenv.cfg home {kv.get('home')!r} != pinned base_python_home"))
+    man = _path(base, v.get("launcher_manifest", ""))
+    if not man.is_file() or _sha(man) != v.get("launcher_manifest_sha256"):
+        return bad.append(("knoxmap_venv", "launcher manifest missing or sha256 mismatch"))
+    if tree_manifest(root, skip_pyc=True, exclude=("Lib/site-packages",)) != man.read_text(encoding="utf-8"):
+        bad.append(("knoxmap_venv", "venv files outside Lib/site-packages differ from launcher manifest (added/altered/removed)"))
+
+
 def _check_venv(v, base, allow_pending, bad):
     if v.get("status") != "locked":
         if not (v.get("status") == "pending" and allow_pending):
@@ -139,7 +162,9 @@ def _check_venv(v, base, allow_pending, bad):
         m = re.match(r"([A-Za-z0-9._-]+)==(\S+)", line)
         if m:
             want[_norm(m.group(1))] = m.group(2)
-    sp = _path(base, v.get("venv_python", "")).parent.parent / "Lib" / "site-packages"
+    root = _path(base, v.get("venv_python", "")).parent.parent
+    _check_launcher(v, root, base, bad)
+    sp = root / "Lib" / "site-packages"
     if not sp.is_dir():
         return bad.append(("knoxmap_venv", f"site-packages missing: {sp}"))
     have = {}

@@ -77,7 +77,7 @@ manifest = "ledger/knoxmap.manifest"
 exclude = ["KnoxMap/.venv"]  # venv is hash-locked separately via [knoxmap_venv]
 
 # Locked after per-package human review (T-01-SC). Python runs against this venv must use `-I -B`
-# (pa.pins.venv_cmd); Scripts/ launchers are not hashed and must not be executed.
+# (pa.pins.venv_cmd); launcher files outside Lib/site-packages are hashed via launcher_manifest.
 [knoxmap_venv]
 status = "locked"
 python_version = "3.13.14"
@@ -86,6 +86,10 @@ requirements_file = "ledger/knoxmap-requirements.txt"
 requirements_sha256 = "2d5b2d7e780b6e5bf74cb8662f48276c3230ea8d0c2f3ced03ea07c510c4fb13"
 site_packages_manifest = "ledger/knoxmap-venv.manifest"
 site_packages_manifest_sha256 = "a79272992caf61b8a475d1161a28978fea5e867ee3d01dfd8d071188710144c3"
+base_python_home = 'C:\Users\shado\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0'
+pyvenv_cfg_sha256 = "5a4d77ae92c4434909f2d06c398cea599612b87fcc0ecf1c9aa2961122fe3b14"
+launcher_manifest = "ledger/knoxmap-venv-launcher.manifest"
+launcher_manifest_sha256 = "9aa58487e58c87d3b658799405a19f1ec4a9475dd8206681199f0f333a443ba9"
 reviewed_by = "user"
 reviewed_date = "2026-11-10"
 proxy_tools_build = "hand-built-from-sdist"
