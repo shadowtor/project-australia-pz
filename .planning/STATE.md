@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 01
 current_phase_name: Toolchain Spike and Pipeline Foundations
 status: executing
-stopped_at: Completed 01-03-PLAN.md
-last_updated: "2026-11-09T21:39:13.474Z"
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-11-09T22:18:51.289Z"
 last_activity: 2026-11-09
 last_activity_desc: Phase 01 execution started
-state_head: f37b57c07c73ad05941b42c0f24b617f4c7bdc4a
+state_head: "0b7bb334ff3898333b6640bfb170cba535761aeb"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 13
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-11-09)
 ## Current Position
 
 Phase: 01 (Toolchain Spike and Pipeline Foundations) — EXECUTING
-Plan: 3 of 13
+Plan: 4 of 13
 Status: Ready to execute
 Last activity: 2026-11-09 — Phase 01 execution started
 
@@ -44,6 +44,7 @@ Progress: [░░░░░░░░░░] 0%
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 01 P01 | 25min | 3 tasks | 12 files |
+| Phase 01 P02 | 60min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -52,6 +53,7 @@ Progress: [░░░░░░░░░░] 0%
 - Cell size (256 vs 300) unresolved; settle in Phase 1 spike and keep it a config parameter.
 - Tasmania (Phase 6) is conditional and must not block mainland release.
 - [Phase 01]: Pin_game_to_Stable_42.22.2_buildid_26486631
+- [Phase 01]: proxy_tools wheel hand-built from hash-verified sdist (user-approved); KnoxMap venv hash-locked
 
 ### Pending Todos
 
@@ -64,6 +66,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-11-09T21:39:13.433Z
-Stopped at: Completed 01-03-PLAN.md
+Last session: 2026-11-09T22:18:51.243Z
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None
