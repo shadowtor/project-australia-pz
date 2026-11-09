@@ -2,6 +2,7 @@
 import hashlib
 import json
 import pathlib
+import re
 
 import yaml
 
@@ -36,6 +37,30 @@ def footprint_hash(tiles):
     return sha(json.dumps(rel))
 
 
+def cell_id(c):
+    """Validate a cell id from yaml/json before it reaches a path. Fails closed with ValueError."""
+    if not isinstance(c, str):
+        raise ValueError(f"cell id {c!r} must be a string; quote it in yaml (e.g. '0_0'), unquoted 0_0 parses as an int")
+    if not re.fullmatch(r"-?\d+_-?\d+", c):
+        raise ValueError(f"bad cell id {c!r}: expected '<int>_<int>' like '0_0' or '-1_2'")
+    return c
+
+
+def tile_coords(t, n=2):
+    """Validate a tile coordinate list of n ints (bool excluded)."""
+    if not (isinstance(t, (list, tuple)) and len(t) >= n and all(type(v) is int for v in t[:n])):
+        raise ValueError(f"bad tile {t!r}: need {n} integers")
+    return t
+
+
+def inside(path, root):
+    """Resolve path and require it stays within root; returns the resolved path."""
+    p, r = pathlib.Path(path).resolve(), pathlib.Path(root).resolve()
+    if p != r and r not in p.parents:
+        raise ValueError(f"path {path} escapes {root}")
+    return p
+
+
 def _glob(tile):
     cx, cy, lx, ly = tile
     return cx * CELL + lx, cy * CELL + ly
@@ -53,6 +78,10 @@ def validate(d, edits_dir=None):
     if a["type"] != "cell_tile":
         if not a.get("geom_hash") or not (isinstance(a.get("tile"), list) and len(a["tile"]) == 4):
             raise ValueError(f"{d['edit_id']}: anchor needs geom_hash and 4-item tile")
+    if a["type"] != "cell_tile" and "tile" in a:
+        tile_coords(a["tile"], 4)
+    if a["type"] == "cell_tile" or d["kind"] == "overlay":
+        cell_id(a.get("ref"))
     if not isinstance(a.get("ref"), str):
         raise ValueError(f"{d['edit_id']}: anchor.ref must be a string (quote cell ids like '0_0')")
     p = d.get("payload")
@@ -84,7 +113,7 @@ def load_locks(edits_dir):
     f = pathlib.Path(edits_dir) / "locks.yaml"
     if not f.exists():
         return []
-    return [str(c) for c in (yaml.safe_load(f.read_text(encoding="utf-8")) or {}).get("locked", [])]
+    return [cell_id(c) for c in (yaml.safe_load(f.read_text(encoding="utf-8")) or {}).get("locked", [])]
 
 
 def resolve(edit, index):
@@ -134,7 +163,7 @@ def promote(edits_dir, generated_dir, edit_id, kind, anchor, payload, overlay_te
     rec = {"edit_id": edit_id, "kind": kind, "anchor": anchor, "payload": dict(payload)}
     sub = "overlays" if kind == "overlay" else "features"
     if kind == "overlay":
-        cell = str(cell)
+        cell = cell_id(cell)
         rec["anchor"] = {"type": "cell_tile", "ref": cell, **{k: v for k, v in anchor.items() if k != "type"}}
         rec["payload"]["path"] = f"overlays/{cell}_{edit_id}.txt"
         rec["generated_tiles_hash"] = sha((generated_dir / f"cell_{cell}.txt").read_bytes())

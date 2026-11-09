@@ -35,6 +35,16 @@ def run(generated_dir, edits_dir, out_dir, masks_dir=None, reports_dir=None):
     """Compose with precedence generated < masks < hand edits < locked. Returns (out_dir, orphan_rows, counts)."""
     generated_dir, edits_dir, out_dir = map(pathlib.Path, (generated_dir, edits_dir, out_dir))
     reports_dir = pathlib.Path(reports_dir) if reports_dir else out_dir.parent / "reports"
+    locks = ed.load_locks(edits_dir)  # validate untrusted ids before any output is written
+    all_edits = ed.load_all(edits_dir)
+    for e in sorted(edits_dir.glob("*.yaml")):
+        d = yaml.safe_load(e.read_text(encoding="utf-8"))
+        if d and "cell" in d and "edit_id" not in d:
+            ed.cell_id(d["cell"])
+            ed.tile_coords(d.get("tile"))
+    idx_file = generated_dir / "features.json"
+    for f in json.loads(idx_file.read_text(encoding="utf-8")) if idx_file.exists() else []:
+        ed.tile_coords(f["tile"], 4)
     if out_dir.exists():
         shutil.rmtree(out_dir)
     shutil.copytree(generated_dir, out_dir)
@@ -47,18 +57,19 @@ def run(generated_dir, edits_dir, out_dir, masks_dir=None, reports_dir=None):
     for e in sorted(edits_dir.glob("*.yaml")):
         d = yaml.safe_load(e.read_text(encoding="utf-8"))
         if d and "cell" in d and "edit_id" not in d:
-            cell = out_dir / f"cell_{d['cell']}.txt"
+            cell = ed.inside(out_dir / f"cell_{ed.cell_id(d['cell'])}.txt", out_dir)
+            x, y = ed.tile_coords(d["tile"])[:2]
             g = _read(cell)
-            _set(g, d["tile"][0], d["tile"][1], str(d["char"]))
+            _set(g, x, y, str(d["char"]))
             _write(cell, g)
     idx_file = generated_dir / "features.json"
     index = json.loads(idx_file.read_text(encoding="utf-8")) if idx_file.exists() else []
     rows, counts = [], [0, 0, 0]
-    for e in ed.load_all(edits_dir):
+    for e in all_edits:
         orphan = None
         if e["kind"] == "overlay":
-            cell = e["anchor"]["ref"]
-            src = generated_dir / f"cell_{cell}.txt"
+            cell = ed.cell_id(e["anchor"]["ref"])
+            src = ed.inside(generated_dir / f"cell_{cell}.txt", generated_dir)
             if not src.exists():
                 orphan = "missing_source"
             elif ed.sha(src.read_bytes()) != e.get("generated_tiles_hash"):
@@ -71,8 +82,8 @@ def run(generated_dir, edits_dir, out_dir, masks_dir=None, reports_dir=None):
         else:
             st, orphan, _, f = ed.resolve(e, index)
             if st != "orphan":
-                cx, cy, lx, ly = f["tile"]
-                cell = out_dir / f"cell_{cx}_{cy}.txt"
+                cx, cy, lx, ly = ed.tile_coords(f["tile"], 4)[:4]
+                cell = ed.inside(out_dir / f"cell_{cx}_{cy}.txt", out_dir)
                 ox, oy = e["payload"].get("offset", [0, 0])
                 g = _read(cell) if cell.exists() else []
                 if _set(g, lx + ox, ly + oy, str(e["payload"]["char"])):
@@ -84,10 +95,10 @@ def run(generated_dir, edits_dir, out_dir, masks_dir=None, reports_dir=None):
             rows.append(ed.orphan_row(e, orphan))
             counts[2] += 1
     # locked cells ignore regenerated content entirely
-    for cell in ed.load_locks(edits_dir):
-        locked = edits_dir / "locked" / f"cell_{cell}.txt"
+    for cell in locks:
+        locked = ed.inside(edits_dir / "locked" / f"cell_{cell}.txt", edits_dir / "locked")
         if locked.exists():
-            shutil.copyfile(locked, out_dir / f"cell_{cell}.txt")
+            shutil.copyfile(locked, ed.inside(out_dir / f"cell_{cell}.txt", out_dir))
     ed.report(rows, counts, reports_dir)
     return out_dir, rows, counts
 
