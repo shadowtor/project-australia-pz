@@ -1,0 +1,6 @@
+# Placeholder pilot values; plan 01-08 replaces them with the real region/cell naming for the real BMPs.
+# bmp_cell_size is the KnoxMap BMP cell size, separate from config/world.yaml cell_size (compiled game grid).
+bmp_cell_size: 300
+road_labels: [road]  # labels from the pinned tools' Rules.txt; colours resolved at runtime
+regions:
+  pilot: [[0, 0, 3, 3]]  # inclusive cell ranges [x0, y0, x1, y1]
