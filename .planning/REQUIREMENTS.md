@@ -9,7 +9,7 @@
 
 - [x] **BUILD-01**: Game build, mapping tools, generator revision and OSM extract are pinned in one PINS file with checksums, and a build repeats without a live data pull
 - [x] **BUILD-02**: Generated output, scale/route config and hand-authored edits live in separate trees; a regeneration test shows hand edits survive and orphaned edits are reported
-- [x] **BUILD-03**: Design-graph connectivity, seam road comparison, palette/unmatched-tile checks and size/load budgets run as validation gates and report failures by region and cell
+- [ ] **BUILD-03**: Design-graph connectivity, seam road comparison, palette/unmatched-tile checks and size/load budgets run as validation gates and report failures by region and cell
 - [x] **BUILD-04**: A failed generation or compile leaves the last playable export installed (atomic release)
 - [ ] **BUILD-05**: OSM attribution, extract date/provenance, transformations and a third-party asset/licence ledger are recorded and shown in the mod
 - [ ] **BUILD-06**: A clean install can start a new save using documented steps, with no companion mod required
@@ -20,7 +20,7 @@
 - [ ] **PILOT-02**: A compressed, signed Princes Freeway corridor joins them with a usable junction, a roadhouse with working fuel and at least one map cell seam
 - [ ] **PILOT-03**: A uniform-scale baseline and the compressed scale are compared on corridor length in tiles, measured drive time and settlement area represented; the scale is chosen after driving the pilot
 - [ ] **PILOT-04**: The pilot area has in-game map coverage, and save/reload mid-corridor and on a seam resumes the trip
-- [x] **PILOT-05**: The pilot records cell format (256 vs 300), cell count, export size, new-save load time and driving performance against agreed budgets on the target machine
+- [ ] **PILOT-05**: The pilot records cell format (256 vs 300), cell count, export size, new-save load time and driving performance against agreed budgets on the target machine
 - [ ] **PILOT-06**: Ramp/overpass driving, a basement entrance and a ferry-style teleport with save/reload are each proven or ruled out in the pinned build
 
 ### Map and scale (MAP, SCALE)
@@ -92,10 +92,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | BUILD-01 | Phase 1 | Complete |
 | BUILD-02 | Phase 1 | Complete |
-| BUILD-03 | Phase 1 | Complete |
+| BUILD-03 | Phase 1 | Pending |
 | BUILD-04 | Phase 1 | Complete |
 | BUILD-05 | Phase 1 | Pending |
-| PILOT-05 | Phase 1 | Complete |
+| PILOT-05 | Phase 1 | Pending |
 | PILOT-06 | Phase 1 | Pending |
 | PILOT-01 | Phase 2 | Pending |
 | PILOT-02 | Phase 2 | Pending |
