@@ -1,0 +1,11 @@
+version: 42.22.2
+branch: stable
+buildid: 26486631
+manifest_path: C:\Program Files (x86)\Steam\steamapps\appmanifest_108600.acf
+install_dir: C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid
+date: 2026-11-10
+cpu: Intel Core i9-10885H
+gpu: RTX 2080 Super Max-Q
+ram_gb: 32
+ssd_model: WD_BLACK SN850X 2000GB
+real_usa_installed: false
