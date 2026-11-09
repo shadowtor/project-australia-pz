@@ -1,0 +1,12 @@
+# KnoxMap spike generator settings (D-08/D-09). Cell size and cell list live here, not in code.
+map_name: pa_spike_melb          # explicit; never the timestamp fallback
+mod_id: pa_spike_melb
+mod_name: "Project Australia spike (Melbourne)"
+# Inner-Melbourne block, ~300 m x 300 m at 1 m/tile: the smallest area that should yield one source cell.
+bbox: {south: -37.8000, west: 144.9780, north: -37.7973, east: 144.9814}
+meters_per_tile: 1
+standalone: true                 # set through KnoxMap's own /api/placement route, no UI needed
+cell_size: 300                   # KnoxMap source-cell size in tiles (D-08); PA's own cell size is config/world.yaml
+cells: [[0, 0, 0, 0]]            # source cells to compile (x0,y0,x1,y1), overridable with `pa build --cells`
+# Network-backed optional data layers are switched off so nothing leaves the machine.
+settings: {landcover: "off", elevation: "flat", hospitals: "off", ne_context: 0, fill_gaps: 0}
