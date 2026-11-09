@@ -26,10 +26,10 @@ Build a Project Zomboid Build 42 map of twelve Australian city districts joined 
   3. Deliberately breaking connectivity, a seam road or a palette tile makes a validation gate fail and name the region and cell.
   4. A deliberately failed generation or compile leaves the last playable export installed and loadable.
   5. A recorded decision shows cell format (256 vs 300), MB per populated/empty cell, new-save load time, and proven-or-ruled-out results for ramps, basement entrance and ferry-style teleport with save/reload.
-**Plans**: 12 plans
+**Plans**: 13 plans
 Plans:
 - [ ] 01-01-PLAN.md — Steam Stable switch, pip legitimacy check, `pa tracer` walking skeleton
-- [ ] 01-02-PLAN.md — PINS.toml, hash verify/fetch, safe extract
+- [ ] 01-02-PLAN.md — PINS.toml, hash verify/fetch, safe extract, reviewed hash-locked KnoxMap venv
 - [ ] 01-03-PLAN.md — Anchors, promote, composer, orphans, regen test
 - [ ] 01-04-PLAN.md — Connectivity, seam, palette, budget gates
 - [ ] 01-05-PLAN.md — Atomic release, install, licence ledger and attribution
@@ -40,6 +40,7 @@ Plans:
 - [ ] 01-10-PLAN.md — Ferry-style teleport spike mod and trials
 - [ ] 01-11-PLAN.md — Ramp and basement feasibility and trials
 - [ ] 01-12-PLAN.md — Decision record, 42.22 recheck, phase gate
+- [ ] 01-13-PLAN.md — Shared stats/budgets schema (pa-stats/1, pa-budgets/1)
 
 ### Phase 2: Melbourne-Geelong Pilot
 **Goal**: A player can spawn in Melbourne or Geelong, loot, find a car and drive the Princes Freeway between them, and the scale choice is made from measured drives.

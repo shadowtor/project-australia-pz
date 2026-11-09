@@ -52,7 +52,7 @@ The 256-vs-300 question is mostly settled by reading the installed game: the eng
 
 KnoxMap's pipeline is not a single command. It is: (1) Knoxify-style render of an OSM bbox into three BMPs plus meta via Flask `POST /api/generate` (no standalone CLI for this step found), (2) `python -m knoxbuild output/<map>` to place `.tbx` buildings and write the `.pzw`, (3) `tools/compile_map.py` (patched `PZWorldEd_cli.exe --generate-map=<pzw> [--cells=x0,y0,x1,y1]`), (4) `tools/make_map_mod.py` to package a B42 mod (it omits `lots=` for standalone maps). Offline OSM is supported with two env vars. Buildings are named by index (`<map>_NNNN.tbx`), not OSM ID, so anchors in Phase 1 must be geometry hash + tile offset, as CONTEXT anticipated.
 
-Two facts the planner must act on: (a) the installed game on this machine is on the Steam **`unstable` beta branch**, last updated about 2026-04-21, i.e. it predates 42.20 Stable; PINS cannot record 42.21 until the user opts out of the beta and updates; (b) D-11 names PZ Mapping Tools 43.00B261030, but KnoxMap's patched CLI links against **43.00B260909**; the Phase 1 pin must be 260909, with 261030 recorded as the Phase 2 target.
+Two facts the planner must act on: (a) the installed game on this machine is on the Steam **`unstable` beta branch**, last updated about 2026-04-21, i.e. it predates 42.20 Stable; PINS cannot record 42.21 until the user opts out of the beta and updates; (b) D-11 names PZ Mapping Tools 43.00B261030, but KnoxMap's patched CLI links against **43.00B260909**; the original research finding was "pin 260909 for Phase 1, 261030 as the Phase 2 target". **SUPERSEDED by the user's post-research decision: Phase 1 pins PZ Mapping Tools 43.00B261030 as the active version; 260909 is kept only as a recorded inactive fallback and is switched to only on explicit user approval after the compatibility check in plan 01-06.** The mismatch risk itself (CLI built on 260909) is unchanged and is what plan 01-06 tests.
 
 **Primary recommendation:** Build a small stdlib-first Python tool (`pa` CLI: pins verify, build, validate, promote, compose, regen-test, release) with pytest fixtures for all automatable criteria; drive KnoxMap as an external pinned black box offline; run the three engine proofs and the vanilla baselines as a scripted manual protocol with a structured evidence log.
 
@@ -77,7 +77,7 @@ Two facts the planner must act on: (a) the installed game on this machine is on 
 | Library / Tool | Version | Purpose | Why Standard |
 |----------------|---------|---------|--------------|
 | Project Zomboid | 42.21 Stable (must switch off `unstable` beta first) | Target runtime | Locked D-11. Installed branch is `unstable` [VERIFIED: D:/SteamLibrary/steamapps/appmanifest_108600.acf — `"BetaKey"		"unstable"`, `"buildid"		"22869276"`] |
-| PZ Mapping Tools | **43.00B260909** for Phase 1 (KnoxMap path); 43.00B261030 reserved for Phase 2 | WorldEd/TileZed/BuildingEd, `config/Rules.txt` | KnoxMap's CLI is built on 260909 [CITED: KnoxMap worlded/README.md] |
+| PZ Mapping Tools | **43.00B261030 active for Phase 1 (user decision after research, supersedes the original "260909 for Phase 1" recommendation)**; 43.00B260909 recorded as inactive fallback | WorldEd/TileZed/BuildingEd, `config/Rules.txt` | KnoxMap's CLI is built on 260909 [CITED: KnoxMap worlded/README.md]; compatibility with 261030 is tested in plan 01-06 |
 | KnoxMap | **1.8.5.5** (2026-11-08) | Spike generator | Newest release; auto_update must be off [CITED: api.github.com releases] |
 | Patched `PZWorldEd_cli.exe` | release `worlded-cli-20260909f` | Headless compile | Pinned by KnoxMap `knoxmap_setup.py` |
 | Geofabrik extract | `australia-261108.osm.pbf` (973,794,719 bytes) | Pinned OSM snapshot | Dated copy retained publicly [CITED: download.geofabrik.de] |
@@ -111,7 +111,7 @@ python3 -m venv .venv
 | Item | Value | Source |
 |------|-------|--------|
 | Tools 260909 zip | `PZ_Mapping_Tools_build20260909f.zip`, 39,759,521 bytes, SHA-256 `2ee15e812bffda6e241c26a2eb2a8f6cd03b0b27bf5899f40196a703f29b5b17` | [VERIFIED: downloaded and `sha256sum` matched GitHub API digest] |
-| Tools 261030 zip (Phase 2) | `PZ_Mapping_Tools_build20261030.zip`, 39,714,067 bytes, SHA-256 `d8913719f9e8dbc194cc829835512f5e364e2fb098e5cc90c3dd3e9eef7f0e1c` | [CITED: GitHub releases API] |
+| Tools 261030 zip (ACTIVE in Phase 1 per user decision; also the Phase 2 target) | `PZ_Mapping_Tools_build20261030.zip`, 39,714,067 bytes, SHA-256 `d8913719f9e8dbc194cc829835512f5e364e2fb098e5cc90c3dd3e9eef7f0e1c` | [CITED: GitHub releases API] |
 | KnoxMap tag | `1.8.5.5` (annotated tag object sha `14bdc1dd9da0550e419a5434a3ea26b64d15aba3`; also pin the dereferenced commit) | [CITED: GitHub git/ref API] |
 | KnoxMap windows zip | `KnoxMap-v1.8.5.5-windows.zip`, 4,039,241 bytes, SHA-256 `1b65a3213cac92c8a30990a426d01abb634d099db7a05ccd6b7413e6adc27cea` | [CITED: GitHub releases API] |
 | Patched CLI | URL `https://github.com/spytheeuclidean-a11y/knoxmap/releases/download/worlded-cli-20260909f/PZWorldEd_cli.exe`, SHA-256 `dbae186f1f1f541decd123604ec9fc822d930f8f7c1ec8b17c1b89874628f3e2` | [CITED: knoxmap_setup.py at tag 1.8.5.5: `CLI_SHA256 = "dbae186f1f1f541decd123604ec9fc822d930f8f7c1ec8b17c1b89874628f3e2"`] |
@@ -235,7 +235,7 @@ Every gate returns a list of `Finding(gate, region, cx, cy, tile, message)`; CLI
 
 | Problem | Don't Build | Use Instead | Why |
 |---------|-------------|-------------|-----|
-| Palette definition | A colour table | Parse pinned `config/Rules.txt` (`rule { label, bitmap, color = R G B, tiles, layer }`, 91 rules) | Authoritative, GPL tool data, licence-clean [VERIFIED: extracted from 260909 zip `config/Rules.txt`] |
+| Palette definition | A colour table | Parse pinned `config/Rules.txt` (`rule { label, bitmap, color = R G B, tiles, layer }`, 91 rules counted on the 260909 zip; recount on the pinned 261030 tree, plan 01-08 records the number) | Authoritative, GPL tool data, licence-clean [VERIFIED: extracted from 260909 zip `config/Rules.txt`] |
 | Hashing / manifests | Custom digest code | `hashlib.sha256`, tree manifest as sorted `path sha256` lines | Standard, deterministic |
 | Map compile | Own lotpack writer | Patched `PZWorldEd_cli.exe --generate-map` | Binary format undocumented |
 | Cell size/stat reporting | Parsing lotpack | File sizes of `world_X_Y.lotpack`, `X_Y.lotheader`, `chunkdata_X_Y.bin` | Sizes are all the budget needs |
@@ -257,7 +257,7 @@ Not a rename/refactor/migration phase. Greenfield; omitted per template. One rea
 **Warning sign:** `pa pins verify` compares appmanifest `buildid`/`BetaKey` against PINS and fails on drift.
 
 ### Pitfall 2: Tools-version mismatch with KnoxMap's CLI
-Mixing 261030 tools with the CLI linked to 260909 Qt libs [CITED: STACK.md, worlded/README.md]. Pin 260909 for Phase 1; keep 261030 only as a recorded Phase 2 target.
+Mixing 261030 tools with the CLI linked to 260909 Qt libs [CITED: STACK.md, worlded/README.md]. Original advice: pin 260909 for Phase 1. **Superseded by the user decision: pin 261030 (active) and test the mismatch early in plan 01-06; 260909 is the recorded inactive fallback, never switched silently (user approval recorded in PINS.toml `[tools.active.approval]`).**
 
 ### Pitfall 3: Silent network use
 `osm_source` "auto" and "overpass" can reach the network; Nominatim place search and the updater also do [CITED: osm.py, README]. Use the explicit env, `auto_update=false`, and the poisoned-proxy test; do not rely on "extract found, so it is fine".
@@ -344,11 +344,25 @@ common/media/maps/<Map Name>/{*.lotheader,*.lotpack,chunkdata_*.bin,map.info,spa
 | A7 | KnoxMap `buildings GeoJSON` may contain OSM ids | Pattern 2 | If absent, geometry-hash anchors only (already the fallback) |
 | A8 | A headless run of KnoxMap via `python app.py` + POST `/api/generate` works without the pywebview window | Pattern 1 | If it needs the window, call `renderer.render` directly or script with a browser |
 | A9 | KnoxMap `standalone` placement is set per project (`placement.standalone(project_dir)`); how the user sets it is not shown | Open Questions | Spike may need the UI "Game world" toggle once; record the resulting project file |
-| A10 | Real USA is installed? Unknown; baseline plan assumes only vanilla | Vanilla baselines | If installed, add as a second baseline |
+| A10 | Real USA is installed? RESOLVED by user: not installed; baseline is vanilla only | Vanilla baselines | none |
 
 ## Open Questions
 
-1. **D-11 vs KnoxMap tools version.**
+**Resolution status (revision pass 1):** every question below is resolved or assigned to a named plan task.
+
+| Q | Status | Resolution / owner |
+|---|--------|--------------------|
+| Q1 | RESOLVED | User decided: pin 261030 active, 260909 inactive fallback (see Summary, Standard Stack, Pitfall 2 annotations) |
+| Q2 | ASSIGNED | 01-12 Task 2 (recheck 42.22 in Steam, record in PINS [game]) |
+| Q3 | ASSIGNED | 01-06 Task 2 (standalone + one-cell bbox, padding recorded in spike/compat-261030.md) |
+| Q4 | ASSIGNED | 01-08 Task 1 (spike/inspection.md `anchor_type`, OSM id exposure) |
+| Q5 | ASSIGNED | 01-08 Task 3 (Native256 .pzw via patched CLI, spike/cell-format-compare.md) |
+| Q6 | RESOLVED | User: Real USA is not installed; baseline is vanilla Muldraugh only (recorded in 01-01 Task 1 `real_usa_installed: false`) |
+| Q7 | RESOLVED | Settled by D-10: Knoxify files not copied; ledger row only (01-05 Task 2) |
+
+Original text kept below.
+
+1. **D-11 vs KnoxMap tools version.** *(RESOLVED by user decision: 261030 active, 260909 fallback; the "recommended 260909" line below is superseded.)*
    - Known: D-11 says 261030; KnoxMap's patched CLI is built on 260909 and links its Qt libs.
    - Unclear: whether the user wants 260909 pinned for Phase 1 (recommended).
    - Recommendation: PINS holds `tools.phase1 = 260909`, `tools.phase2_target = 261030`; confirm with user at plan time.
