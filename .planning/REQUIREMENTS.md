@@ -7,10 +7,10 @@
 
 ### Foundations (BUILD)
 
-- [ ] **BUILD-01**: Game build, mapping tools, generator revision and OSM extract are pinned in one PINS file with checksums, and a build repeats without a live data pull
-- [ ] **BUILD-02**: Generated output, scale/route config and hand-authored edits live in separate trees; a regeneration test shows hand edits survive and orphaned edits are reported
-- [ ] **BUILD-03**: Design-graph connectivity, seam road comparison, palette/unmatched-tile checks and size/load budgets run as validation gates and report failures by region and cell
-- [ ] **BUILD-04**: A failed generation or compile leaves the last playable export installed (atomic release)
+- [x] **BUILD-01**: Game build, mapping tools, generator revision and OSM extract are pinned in one PINS file with checksums, and a build repeats without a live data pull
+- [x] **BUILD-02**: Generated output, scale/route config and hand-authored edits live in separate trees; a regeneration test shows hand edits survive and orphaned edits are reported
+- [x] **BUILD-03**: Design-graph connectivity, seam road comparison, palette/unmatched-tile checks and size/load budgets run as validation gates and report failures by region and cell
+- [x] **BUILD-04**: A failed generation or compile leaves the last playable export installed (atomic release)
 - [ ] **BUILD-05**: OSM attribution, extract date/provenance, transformations and a third-party asset/licence ledger are recorded and shown in the mod
 - [ ] **BUILD-06**: A clean install can start a new save using documented steps, with no companion mod required
 
@@ -90,10 +90,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUILD-01 | Phase 1 | Pending |
-| BUILD-02 | Phase 1 | Pending |
-| BUILD-03 | Phase 1 | Pending |
-| BUILD-04 | Phase 1 | Pending |
+| BUILD-01 | Phase 1 | Complete |
+| BUILD-02 | Phase 1 | Complete |
+| BUILD-03 | Phase 1 | Complete |
+| BUILD-04 | Phase 1 | Complete |
 | BUILD-05 | Phase 1 | Pending |
 | PILOT-05 | Phase 1 | Pending |
 | PILOT-06 | Phase 1 | Pending |

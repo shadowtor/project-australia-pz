@@ -16,6 +16,7 @@ Build a Project Zomboid Build 42 map of twelve Australian city districts joined 
 ## Phase Details
 
 ### Phase 1: Toolchain Spike and Pipeline Foundations
+
 **Goal**: A pinned, reproducible build exists, engine unknowns are settled with evidence, and the pipeline protects hand work and reports failures before any content is scaled.
 **Mode:** mvp
 **Depends on**: Nothing (first phase)
@@ -26,9 +27,10 @@ Build a Project Zomboid Build 42 map of twelve Australian city districts joined 
   3. Deliberately breaking connectivity, a seam road or a palette tile makes a validation gate fail and name the region and cell.
   4. A deliberately failed generation or compile leaves the last playable export installed and loadable.
   5. A recorded decision shows cell format (256 vs 300), MB per populated/empty cell, new-save load time, and proven-or-ruled-out results for ramps, basement entrance and ferry-style teleport with save/reload.
-**Plans**: 13 plans
+
+**Plans**: 1/13 plans executed
 Plans:
-- [ ] 01-01-PLAN.md — Steam Stable switch, pip legitimacy check, `pa tracer` walking skeleton
+- [x] 01-01-PLAN.md — Steam Stable switch, pip legitimacy check, `pa tracer` walking skeleton
 - [ ] 01-02-PLAN.md — PINS.toml, hash verify/fetch, safe extract, reviewed hash-locked KnoxMap venv
 - [ ] 01-03-PLAN.md — Anchors, promote, composer, orphans, regen test
 - [ ] 01-04-PLAN.md — Connectivity, seam, palette, budget gates
@@ -43,6 +45,7 @@ Plans:
 - [ ] 01-13-PLAN.md — Shared stats/budgets schema (pa-stats/1, pa-budgets/1)
 
 ### Phase 2: Melbourne-Geelong Pilot
+
 **Goal**: A player can spawn in Melbourne or Geelong, loot, find a car and drive the Princes Freeway between them, and the scale choice is made from measured drives.
 **Mode:** mvp
 **Depends on**: Phase 1
@@ -53,10 +56,12 @@ Plans:
   3. The player drives the signed Princes Freeway between districts, using a junction, refuelling at a roadhouse and crossing at least one cell seam without stream-in failure.
   4. Uniform-scale and compressed-scale drives are compared (tiles, measured drive time, settlement area) and a scale is chosen from the results.
   5. In-game map covers the pilot area, and save/reload mid-corridor and on a seam resumes the trip.
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 3: National Road Network and Regional Production
+
 **Goal**: Players can drive between any two of the twelve mainland destinations on one continuous signed network, with survival stops, in region-by-region increments.
 **Mode:** mvp
 **Depends on**: Phase 2
@@ -67,10 +72,12 @@ Plans:
   3. Corridors keep pinned junctions, bridges, turnoffs and survival stops, with fuel at intervals that need one refuel per long leg.
   4. Every corridor link driven in both directions passes collision, signage, stream-in and save/reload checks.
   5. Measured drives are about 5 minutes for short links and 20 to 30 minutes for long interstate legs.
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 4: Identity and Selective Features
+
 **Goal**: Each destination feels distinct, using only features proven in earlier phases.
 **Mode:** mvp
 **Depends on**: Phase 3
@@ -80,10 +87,12 @@ Plans:
   2. Tropical (Cairns, Darwin) and outback (Coober Pedy, Broome) biomes appear where the tile audit shows they are achievable on vanilla tiles.
   3. Multi-level features (e.g. Coober Pedy dugouts, car parks, overpasses) exist only for proven types, each reachable from its approach road with working entrances, stairs and collision.
   4. Roadside wrecks, roadblocks and a checkpoint appear along corridors, and found in-world maps reveal town outlines.
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 5: Release Gate
+
 **Goal**: The full mainland map is verified as one installable, legally clean, reproducible release.
 **Mode:** mvp
 **Depends on**: Phase 4
@@ -92,9 +101,11 @@ Plans:
   1. A full union compile installed on a fresh profile passes the full corridor drive matrix, budget checks and clean-install acceptance.
   2. The licence and attribution audit (OSM/ODbL, Knoxify/KnoxMap, tiles, assets) passes before any distribution.
   3. A repeat export from the same pinned inputs reproduces the validated road layout and preserves manual work.
+
 **Plans**: TBD
 
 ### Phase 6: Bass Strait Ferry (Conditional)
+
 **Goal**: Players can cross to Tasmania safely, or the island is left out without affecting the mainland release.
 **Mode:** mvp
 **Depends on**: Phase 1 (pedestrian proof may start after Phase 2); merge gated after Phase 5
@@ -105,13 +116,14 @@ Plans:
   3. If the destination cannot load or has no safe arrival point, the player stays at the departure terminal with a clear message.
   4. Both terminals have usable road approaches and a driveable island road network reaches selected destinations.
   5. Tasmania ships only if the ferry passes; a foot-passenger-only crossing is an acceptable fallback and no mainland requirement depends on it.
+
 **Plans**: TBD
 
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Toolchain Spike and Pipeline Foundations | 0/0 | Not started | - |
+| 1. Toolchain Spike and Pipeline Foundations | 1/13 | In Progress | - |
 | 2. Melbourne-Geelong Pilot | 0/0 | Not started | - |
 | 3. National Road Network and Regional Production | 0/0 | Not started | - |
 | 4. Identity and Selective Features | 0/0 | Not started | - |
