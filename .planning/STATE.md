@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 01
 current_phase_name: Toolchain Spike and Pipeline Foundations
 status: executing
-stopped_at: Completed 01-04-PLAN.md
-last_updated: "2026-11-09T22:44:28.170Z"
+stopped_at: Completed 01-07-PLAN.md
+last_updated: "2026-11-09T22:51:51.954Z"
 last_activity: 2026-11-09
 last_activity_desc: Phase 01 execution started
-state_head: 5e4fd23d51a27d323fa00bc8e1c154d9475577e9
+state_head: 30fd3a1ada9cfe2c51697f48b2387dd0c63ee326
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 13
-  completed_plans: 6
+  completed_plans: 7
   percent: 0
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-11-09)
 ## Current Position
 
 Phase: 01 (Toolchain Spike and Pipeline Foundations) — EXECUTING
-Plan: 7 of 13
+Plan: 8 of 13
 Status: Ready to execute
 Last activity: 2026-11-09 — Phase 01 execution started
 
@@ -48,6 +48,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P13 | 5min | 1 tasks | 3 files |
 | Phase 01 P05 | 25min | 2 tasks | 8 files |
 | Phase 01 P04 | 20min | 2 tasks | 4 files |
+| Phase 01 P07 | 25min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -59,6 +60,7 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 01]: proxy_tools wheel hand-built from hash-verified sdist (user-approved); KnoxMap venv hash-locked
 - [Phase 01]: 01-05: releases immutable; pa release fails closed when pa.ledger missing (T-01-14); install swaps via .new/.old on Windows
 - [Phase 01]: 01-04: connectivity gate flags all nodes outside the largest component
+- [Phase 01]: 01-07: MB=MiB; PROVEN needs 3 passes per required direction (ramp up/down, basement in/out, ferry round_trip); verdict.md may understate but not overclaim
 
 ### Pending Todos
 
@@ -71,6 +73,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-11-09T22:44:28.124Z
-Stopped at: Completed 01-04-PLAN.md
+Last session: 2026-11-09T22:51:51.903Z
+Stopped at: Completed 01-07-PLAN.md
 Resume file: None

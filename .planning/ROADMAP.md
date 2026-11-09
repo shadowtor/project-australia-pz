@@ -28,7 +28,7 @@ Build a Project Zomboid Build 42 map of twelve Australian city districts joined 
   4. A deliberately failed generation or compile leaves the last playable export installed and loadable.
   5. A recorded decision shows cell format (256 vs 300), MB per populated/empty cell, new-save load time, and proven-or-ruled-out results for ramps, basement entrance and ferry-style teleport with save/reload.
 
-**Plans**: 6/13 plans executed
+**Plans**: 7/13 plans executed
 Plans:
 - [x] 01-01-PLAN.md — Steam Stable switch, pip legitimacy check, `pa tracer` walking skeleton
 - [x] 01-02-PLAN.md — PINS.toml, hash verify/fetch, safe extract, reviewed hash-locked KnoxMap venv
@@ -36,7 +36,7 @@ Plans:
 - [x] 01-04-PLAN.md — Connectivity, seam, palette, budget gates
 - [x] 01-05-PLAN.md — Atomic release, install, licence ledger and attribution
 - [ ] 01-06-PLAN.md — Offline KnoxMap wrapper and 261030 compatibility check
-- [ ] 01-07-PLAN.md — Stats, evidence/decision validator, in-game protocol
+- [x] 01-07-PLAN.md — Stats, evidence/decision validator, in-game protocol
 - [ ] 01-08-PLAN.md — Real repeat build, output inspection, real-output tests, 256 vs 300 compare
 - [ ] 01-09-PLAN.md — Vanilla/pilot in-game baselines, attribution check, frozen budgets
 - [ ] 01-10-PLAN.md — Ferry-style teleport spike mod and trials
@@ -123,7 +123,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Toolchain Spike and Pipeline Foundations | 6/13 | In Progress | - |
+| 1. Toolchain Spike and Pipeline Foundations | 7/13 | In Progress | - |
 | 2. Melbourne-Geelong Pilot | 0/0 | Not started | - |
 | 3. National Road Network and Regional Production | 0/0 | Not started | - |
 | 4. Identity and Selective Features | 0/0 | Not started | - |
