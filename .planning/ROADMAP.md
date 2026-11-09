@@ -28,7 +28,7 @@ Build a Project Zomboid Build 42 map of twelve Australian city districts joined 
   4. A deliberately failed generation or compile leaves the last playable export installed and loadable.
   5. A recorded decision shows cell format (256 vs 300), MB per populated/empty cell, new-save load time, and proven-or-ruled-out results for ramps, basement entrance and ferry-style teleport with save/reload.
 
-**Plans**: 3/13 plans executed
+**Plans**: 4/13 plans executed
 Plans:
 - [x] 01-01-PLAN.md — Steam Stable switch, pip legitimacy check, `pa tracer` walking skeleton
 - [x] 01-02-PLAN.md — PINS.toml, hash verify/fetch, safe extract, reviewed hash-locked KnoxMap venv
@@ -42,7 +42,7 @@ Plans:
 - [ ] 01-10-PLAN.md — Ferry-style teleport spike mod and trials
 - [ ] 01-11-PLAN.md — Ramp and basement feasibility and trials
 - [ ] 01-12-PLAN.md — Decision record, 42.22 recheck, phase gate
-- [ ] 01-13-PLAN.md — Shared stats/budgets schema (pa-stats/1, pa-budgets/1)
+- [x] 01-13-PLAN.md — Shared stats/budgets schema (pa-stats/1, pa-budgets/1)
 
 ### Phase 2: Melbourne-Geelong Pilot
 
@@ -123,7 +123,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Toolchain Spike and Pipeline Foundations | 3/13 | In Progress | - |
+| 1. Toolchain Spike and Pipeline Foundations | 4/13 | In Progress | - |
 | 2. Melbourne-Geelong Pilot | 0/0 | Not started | - |
 | 3. National Road Network and Regional Production | 0/0 | Not started | - |
 | 4. Identity and Selective Features | 0/0 | Not started | - |
