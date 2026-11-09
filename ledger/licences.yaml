@@ -1,0 +1,36 @@
+# BUILD-05 licence ledger (D-10). Checked by `pa ledger check` and, via pa release, before every promotion.
+# Every id below is required; a missing row fails the check. Parsed with yaml.safe_load only.
+rows:
+  - id: osm_odbl
+    component: OpenStreetMap data (Geofabrik extract australia-261108)
+    licence: ODbL 1.0
+    handling: Credit "© OpenStreetMap contributors" in ATTRIBUTION.txt and the map.info description; provenance.json records extract name, date and transformations.
+    source: KnoxMap LICENSES.md
+  - id: worlded_cli_gpl2plus
+    component: Patched PZWorldEd_cli.exe and worlded/
+    licence: GPL-2.0-or-later
+    handling: Run unmodified as an external tool. If ever redistributed, ship the source with the release.
+    source: KnoxMap LICENSES.md
+  - id: pz_mapping_tools_gpl2
+    component: PZ Mapping Tools
+    licence: GPL-2.0
+    handling: External tool, not redistributed.
+    source: .planning/research/STACK.md
+  - id: knoxmap_own_mit
+    component: KnoxMap own additions (knoxbuild/, tools/)
+    licence: MIT
+    handling: Used as an external tool.
+    source: KnoxMap LICENSES.md
+  - id: pz_game_assets
+    component: Project Zomboid tiles and art
+    licence: The Indie Stone copyright
+    handling: Never redistributed. Tools read them from the player's own install.
+    source: KnoxMap LICENSES.md
+  - id: knoxify
+    component: Knoxify-derived files
+    licence: no licence published, all rights reserved
+    status: not_copied
+    note: not copied, licence unpublished
+    handling: Nothing from Knoxify is copied into this project (D-10).
+    source: KnoxMap LICENSES.md
+# Generated mod payload: contains ODbL-derived data. ODbL posture and legal check are deferred to Phase 5 (REL-02).

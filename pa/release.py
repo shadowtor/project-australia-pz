@@ -128,13 +128,12 @@ def install(root, mods_dir, mod_id):
 
 
 def _ledger_gate(staging):
+    """T-01-14: the ledger is a hard prerequisite; a missing or broken pa.ledger fails the release, never skips."""
     try:
         import pa.ledger as ledger
-    except ModuleNotFoundError as e:
-        if e.name == "pa.ledger":
-            return []  # ponytail: tolerated only until plan 01-05 task 2 lands pa.ledger, then made strict
-        raise
-    return ledger.check_payload(staging)
+    except ImportError as e:
+        raise ReleaseError(f"pa.ledger unavailable: {e}") from e
+    return ledger.gate(staging)
 
 
 def _config_gates(world, cfg_file):

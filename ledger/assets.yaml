@@ -1,0 +1,7 @@
+# Third-party assets shipped in or alongside the mod. Starts empty.
+# Schema, one entry per asset under `assets:`:
+#   - path: relative/path/inside/payload   (required, relative, no "..")
+#     licence: SPDX id or licence name      (required, must not be "unknown")
+#     source: URL or citation               (required)
+# `pa ledger check` fails on any entry missing a field or carrying an unknown licence.
+assets: []
