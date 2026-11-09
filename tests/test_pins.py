@@ -142,6 +142,13 @@ HOME = "C:/base/Python313"
 
 
 # Test 7
+@pytest.fixture(autouse=True)
+def _profile(tmp_path, monkeypatch):
+    # tmp_path itself lives under the real profile; point the "user-writable" roots elsewhere
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "_profile/local"))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path / "_profile"))
+
+
 def venv_fixture(tmp_path, pkgs=(("foo", "1.0"), ("bar-baz", "2.1")), status="locked"):
     sp = tmp_path / "venv/Lib/site-packages"
     for n, v in pkgs:
@@ -151,13 +158,19 @@ def venv_fixture(tmp_path, pkgs=(("foo", "1.0"), ("bar-baz", "2.1")), status="lo
     write(tmp_path / "venv/Scripts/python.exe", b"launcher")
     cfg = write(tmp_path / "venv/pyvenv.cfg", f"home = {HOME}\ninclude-system-site-packages = false\nversion = 3.13\n")
     lman = write(tmp_path / "launcher.manifest", pins.tree_manifest(tmp_path / "venv", skip_pyc=True, exclude=("Lib/site-packages",)))
+    rh = tmp_path / "realpy"
+    write(rh / "python.exe", b"py"); write(rh / "python313.dll", b"dll"); write(rh / "vcruntime140.dll", b"vc")
+    write(rh / "Lib/os.py", b"# os"); write(rh / "Lib/__pycache__/os.pyc", b"\0")
+    bman = write(tmp_path / "base.manifest", pins.base_manifest(rh))
     req = write(tmp_path / "reqs.txt", "# header\nfoo==1.0 --hash=sha256:" + "a" * 64 + "\nbar-baz==2.1 --hash=sha256:" + "b" * 64 + "\n")
     man = write(tmp_path / "venv.manifest", pins.tree_manifest(sp, skip_pyc=True))
     t = (f'[knoxmap_venv]\nstatus = "{status}"\n' if status == "pending" else
          f'[knoxmap_venv]\nstatus = "locked"\npython_version = "3.13"\nvenv_python = "venv/Scripts/python.exe"\n'
          f'requirements_file = "reqs.txt"\nrequirements_sha256 = "{sha(req.read_bytes())}"\n'
          f'site_packages_manifest = "venv.manifest"\n'
-         f"base_python_home = '{HOME}'\npyvenv_cfg_sha256 = \"{sha(cfg.read_bytes())}\"\n"
+         f"base_python_home = '{HOME}'\nbase_python_real_home = '{rh}'\nbase_python_manifest = \"base.manifest\"\n"
+         f'base_python_manifest_sha256 = "{sha(bman.read_bytes())}"\n'
+         f"pyvenv_cfg_sha256 = \"{sha(cfg.read_bytes())}\"\n"
          f'launcher_manifest = "launcher.manifest"\nlauncher_manifest_sha256 = "{sha(lman.read_bytes())}"\n'
          f'site_packages_manifest_sha256 = "{sha(man.read_bytes())}"\nreviewed_by = "user"\nreviewed_date = "2026-11-11"\n')
     (tmp_path / "PINS.toml").write_text(t)
@@ -256,3 +269,19 @@ def test_venv_pyvenv_cfg(tmp_path):
     assert any("home" in why for _, why in check(p))
     cfg.write_bytes(orig)
     assert check(p) == []
+
+
+def test_base_python_real_home(tmp_path, monkeypatch):
+    p, _, _ = venv_fixture(tmp_path)
+    rh = tmp_path / "realpy"
+    assert check(p) == []
+    write(rh / "python.exe", b"evil")  # altered base interpreter
+    assert any("real base interpreter" in why for _, why in check(p))
+    write(rh / "python.exe", b"py")
+    write(rh / "Lib/os.py", b"# evil")  # altered stdlib file
+    assert any("real base interpreter" in why for _, why in check(p))
+    write(rh / "Lib/os.py", b"# os")
+    write(rh / "Lib/__pycache__/os.pyc", b"changed")  # pyc ignored
+    assert check(p) == []
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path))  # real home now user-writable
+    assert any("user-writable" in why for _, why in check(p))

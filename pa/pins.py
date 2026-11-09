@@ -121,6 +121,37 @@ def _check_tools(t, base, bad):
         bad.append(("tools.active", f"selected_by {sel!r} not recognised"))
 
 
+def base_manifest(home):
+    """Sorted `relpath sha256` lines for the real base interpreter: python.exe, python3*.dll, vcruntime*.dll,
+    and the Lib/ + DLLs/ trees (no __pycache__/*.pyc). Read-only; nothing is executed."""
+    home = pathlib.Path(home)
+    lines = [f"{p.name} {_sha(p)}" for pat in ("python.exe", "python3*.dll", "vcruntime*.dll") for p in home.glob(pat) if p.is_file()]
+    for sub in ("Lib", "DLLs"):
+        if (home / sub).is_dir():
+            lines += [f"{sub}/{l}" for l in tree_manifest(home / sub, skip_pyc=True).splitlines()]
+    return "".join(l + "\n" for l in sorted(set(lines)))
+
+
+def _under(p, d):
+    p, d = os.path.normcase(os.path.realpath(p)), os.path.normcase(os.path.realpath(d))
+    return p == d or p.startswith(d.rstrip("\\/") + os.sep)
+
+
+def _check_base_python(v, base, bad):
+    """The venv `home` may be a user-writable Store alias dir; trust only the pinned real install, hashed."""
+    real = v.get("base_python_real_home")
+    if not real or not os.path.isdir(real):
+        return bad.append(("knoxmap_venv", f"base_python_real_home missing or not a directory: {real!r}"))
+    for env in ("LOCALAPPDATA", "USERPROFILE"):
+        if os.environ.get(env) and _under(real, os.environ[env]):
+            return bad.append(("knoxmap_venv", f"base_python_real_home {real!r} is under user-writable %{env}%"))
+    man = _path(base, v.get("base_python_manifest", ""))
+    if not man.is_file() or _sha(man) != v.get("base_python_manifest_sha256"):
+        return bad.append(("knoxmap_venv", "base python manifest missing or sha256 mismatch"))
+    if base_manifest(real) != man.read_text(encoding="utf-8"):
+        bad.append(("knoxmap_venv", "real base interpreter files differ from base python manifest (added/altered/removed)"))
+
+
 def _check_launcher(v, root, base, bad):
     """Everything in the venv outside Lib/site-packages (launcher exes, pyvenv.cfg): read and hashed, never run."""
     cfg = root / "pyvenv.cfg"
@@ -137,6 +168,7 @@ def _check_launcher(v, root, base, bad):
         bad.append(("knoxmap_venv", "pyvenv.cfg include-system-site-packages is not false"))
     if not v.get("base_python_home") or os.path.normcase(os.path.normpath(kv.get("home", ""))) != os.path.normcase(os.path.normpath(v["base_python_home"])):
         bad.append(("knoxmap_venv", f"pyvenv.cfg home {kv.get('home')!r} != pinned base_python_home"))
+    _check_base_python(v, base, bad)
     man = _path(base, v.get("launcher_manifest", ""))
     if not man.is_file() or _sha(man) != v.get("launcher_manifest_sha256"):
         return bad.append(("knoxmap_venv", "launcher manifest missing or sha256 mismatch"))
