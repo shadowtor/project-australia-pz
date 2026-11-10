@@ -183,3 +183,36 @@ def test_basement_settings_reach_generate(env):
     assert s["max_basement_depth"] == 0 and s["basement_share"] == 0
     real = build.load_cfg(ROOT / "config" / "knoxmap.yaml")["settings"]
     assert real["max_basement_depth"] == 0
+
+
+def test_prepare_tools_stage_records_hashes_and_runs_locked_python(env, tmp_path):
+    pins, cfg, tmp, calls = env
+    game = tmp / "game"
+    game.mkdir()
+    cfg.write_text(CFG + f"prepare_tools: {{game_dir: '{game.as_posix()}'}}\n", encoding="utf-8")
+    w = build.build(pins, cfg, tmp / "w")
+    rec = json.loads((w / "prepare-record.json").read_text())
+    assert rec["tile_sheets"] == 1 and set(rec["sha256"]) == {"settings/PZTools.ini", "config/Rules.txt", "config/Tilesets.txt"}
+    assert rec["sha256"]["config/Rules.txt"] == build.sha_file(w / "tools" / "config" / "Rules.txt")
+    assert json.loads((w / "build-record.json").read_text())["prepare_tools"] == rec
+    patch = [c for c in calls if c[3].endswith(".py")]
+    assert len(patch) == 2 and all(c[:3] == [sys.executable, "-I", "-B"] for c in patch)
+    # vendored fake trees stay untouched; only the work copy is configured
+    assert not (FAKE / "tools" / "settings").exists() and "road" not in (FAKE / "tools" / "config" / "Rules.txt").read_text()
+
+
+def test_prepare_tools_fails_if_rules_not_applied_or_game_missing(env, monkeypatch):
+    pins, cfg, tmp, _ = env
+    cfg.write_text(CFG + f"prepare_tools: {{game_dir: '{(tmp / 'nogame').as_posix()}'}}\n", encoding="utf-8")
+    with pytest.raises(build.BuildError, match="game_dir"):
+        build.build(pins, cfg, tmp / "w")
+    (tmp / "game").mkdir()
+    cfg.write_text(CFG + f"prepare_tools: {{game_dir: '{(tmp / 'game').as_posix()}'}}\n", encoding="utf-8")
+    monkeypatch.setattr(build, "RULE_SCRIPTS", ("patch_rules_b42_trees.py",))  # roads rule never written
+    with pytest.raises(build.BuildError, match="road rules"):
+        build.build(pins, cfg, tmp / "w2")
+
+
+def test_run_tree_times_out_and_kills(tmp_path):
+    with open(tmp_path / "l", "wb") as log, pytest.raises(build.BuildError, match="timed out"):
+        build.run_tree([sys.executable, "-c", "import time;time.sleep(60)"], tmp_path, None, log, 1)

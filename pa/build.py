@@ -29,9 +29,17 @@ NAME_RE = re.compile(r"[A-Za-z0-9_]{1,40}")
 PRELUDE = "import sys;sys.path.insert(0,sys.argv[1]);"  # -I drops the script dir, so the launcher adds the tree itself
 SERVER = PRELUDE + "import app;app.app.run(host='127.0.0.1',port=int(sys.argv[2]),debug=False)"
 KNOXBUILD = PRELUDE + "from knoxbuild.build import main;sys.exit(main([sys.argv[2]]))"
-COMPILE = PRELUDE + ("import json;from tools.compile_map import compile_map;"
-                     "n=compile_map(sys.argv[2],exe=sys.argv[3],only_cells=json.loads(sys.argv[4]) or None,backend='worlded');"
+# one attempt and a short batch timeout so a hidden modal dialog fails fast instead of hanging 30 min x 3
+COMPILE = PRELUDE + ("import json;import tools.compile_map as c;c.BATCH_TIMEOUT=int(sys.argv[5]);c.BATCH_ATTEMPTS=1;"
+                     "n=c.compile_map(sys.argv[2],exe=sys.argv[3],only_cells=json.loads(sys.argv[4]) or None,backend='worlded');"
                      "print('compiled',n);sys.exit(0 if n else 3)")
+# Only the named KnoxMap Setup step (tile artwork + PZTools.ini); never Setup's downloads or pip. patch_rules is stubbed
+# out because it spawns a bare sys.executable; the wrapper runs the two patch scripts itself with -I -B.
+PREPARE = PRELUDE + ("import pathlib,knoxmap_setup as s,knoxpaths;s.patch_rules=lambda t:None;"
+                     "g=knoxpaths.pz_install_from(sys.argv[3]);assert g,'no Project Zomboid install at '+sys.argv[3];"
+                     "s.configure_tools(pathlib.Path(sys.argv[2]),g)")
+RULE_SCRIPTS = ("patch_rules_b42_trees.py", "patch_rules_roads.py")
+DEFAULT_TIMEOUT = 300
 PACKAGE = PRELUDE + ("from tools.make_map_mod import main;"
                      "sys.exit(main([sys.argv[2],'--name',sys.argv[3],'--id',sys.argv[4],'--mods-dir',sys.argv[5]]))")
 
@@ -58,6 +66,11 @@ def load_cfg(path):
     c["cells"] = [_cells(x) for x in (c.get("cells") or [])]
     if not isinstance(c.get("settings", {}), dict):
         raise BuildError("settings must be a mapping")
+    pt = c.get("prepare_tools")
+    if pt is not None and not (isinstance(pt, dict) and isinstance(pt.get("game_dir"), str)):
+        raise BuildError("prepare_tools needs game_dir")
+    if type(c.get("compile_timeout_s", 300)) is not int or c.get("compile_timeout_s", 300) < 10:
+        raise BuildError("compile_timeout_s must be an int >= 10")
     return c
 
 
@@ -111,6 +124,17 @@ def _env(work, km, tools, cli, pbf):
     return e
 
 
+def run_tree(argv, cwd, env, log, timeout):
+    """Run to completion or kill the whole process tree on timeout (a hidden dialog must fail fast)."""
+    p = subprocess.Popen(argv, cwd=cwd, env=env, stdout=log, stderr=subprocess.STDOUT)
+    try:
+        return p.wait(timeout)
+    except subprocess.TimeoutExpired:
+        subprocess.run(["taskkill", "/F", "/T", "/PID", str(p.pid)], capture_output=True)
+        p.kill(); p.wait(10)
+        raise BuildError(f"step timed out after {timeout}s and its process tree was killed: {' '.join(map(str, argv[3:6]))}") from None
+
+
 class Runner:
     def __init__(self, py, km, work, env, log):
         self.py, self.km, self.work, self.env, self.log = py, km, work, env, log
@@ -118,8 +142,7 @@ class Runner:
     def run(self, code, *args, timeout=3600):
         argv = self.py + ["-c", code, str(self.km), *map(str, args)]
         self.log.write(f"\n$ {' '.join(argv[:3])} ... {' '.join(map(str, args))}\n".encode()); self.log.flush()
-        r = subprocess.run(argv, cwd=self.work, env=self.env, stdout=self.log, stderr=subprocess.STDOUT, timeout=timeout)
-        return r.returncode
+        return run_tree(argv, self.work, self.env, self.log, timeout)
 
     def serve(self):
         s = socket.socket(); s.bind(("127.0.0.1", 0)); port = s.getsockname()[1]; s.close()
@@ -166,7 +189,7 @@ def cli_argv(exe):
     return [str(exe)]  # separate so tests can swap in a fake compiler
 
 
-def _prepare(work, P):
+def _copy_trees(work, P):
     """Copy verified trees into the fresh work dir; the vendored trees stay read-only."""
     km = work / "knoxmap"
     shutil.copytree(P["km"], km, ignore=shutil.ignore_patterns(".venv", "output", "cache", "__pycache__"))
@@ -180,13 +203,36 @@ def _prepare(work, P):
     return km, tools, cli
 
 
+def prepare_tools(R, km, tools, pt, work):
+    """Configure the WORK COPY of the tools (tile artwork, PZTools.ini, Rules.txt patches) and write prepare-record.json.
+    Plan 01-02 locked the venv but not tools configuration; this is that gap, made explicit and reproducible."""
+    game = pathlib.Path(pt["game_dir"])
+    if not game.is_dir():
+        raise BuildError(f"prepare_tools.game_dir {game} is not a directory")
+    if R.run(PREPARE, tools, game, timeout=pt.get("timeout_s", 1800)):
+        raise BuildError("prepare-tools: tile setup failed (see build.log)")
+    for sc in RULE_SCRIPTS:
+        if run_tree(R.py + [str(km / "worlded" / sc), str(tools)], work, R.env, R.log, 300):
+            raise BuildError(f"prepare-tools: {sc} failed (see build.log)")
+    ini, rules, tilesets = tools / "settings" / "PZTools.ini", tools / "config" / "Rules.txt", tools / "config" / "Tilesets.txt"
+    sheets = sorted((tools / "Tiles" / "2x").glob("*.png"))
+    if "TilesDirectory=" not in ini.read_text(encoding="utf-8") or not sheets:
+        raise BuildError("prepare-tools: PZTools.ini has no TilesDirectory or no tile sheets were extracted")
+    if "KnoxMap road Yard bed_soil" not in rules.read_text(encoding="utf-8", errors="replace"):
+        raise BuildError("prepare-tools: Rules.txt road rules were not applied")
+    rec = dict(game_dir=str(game), tile_sheets=len(sheets), steps=["knoxmap_setup.configure_tools (tiles + PZTools.ini)", *RULE_SCRIPTS],
+               sha256={"settings/PZTools.ini": sha_file(ini), "config/Rules.txt": sha_file(rules), "config/Tilesets.txt": sha_file(tilesets)})
+    (work / "prepare-record.json").write_text(json.dumps(rec, indent=1), encoding="utf-8")
+    return rec
+
+
 def build(pins_path, cfg_path, work=None, cells=None, project=None, mod_id=None):
     """Returns the work dir. Raises BuildError; the server is killed and a failed compile leaves no payload."""
     bad, _ = pins.check(pins_path)  # fail closed before anything is spawned
     if bad:
         raise BuildError("pins verify failed: " + "; ".join(f"{i}: {w}" for i, w in bad[:5]))
     P, py = _paths(pins_path), pins.venv_cmd(pins_path)
-    cfg = load_cfg(cfg_path) if not project else None
+    cfg = load_cfg(cfg_path)
     if project:
         mod_id = edits_name(mod_id)
         project = pathlib.Path(project)
@@ -201,18 +247,21 @@ def build(pins_path, cfg_path, work=None, cells=None, project=None, mod_id=None)
     if work.exists() and any(work.iterdir()):
         raise BuildError(f"work dir {work} is not empty")
     work.mkdir(parents=True, exist_ok=True)
-    km, tools, cli = _prepare(work, P)
+    km, tools, cli = _copy_trees(work, P)
     env = _env(work, km, tools, cli, P["pbf"])
     with open(work / "build.log", "wb") as log:
         R = Runner(py, km, work, env, log)
-        steps = []
+        steps, timeout = [], int(cfg.get("compile_timeout_s", DEFAULT_TIMEOUT))
+        if cfg.get("prepare_tools"):
+            rec = prepare_tools(R, km, tools, cfg["prepare_tools"], work)
+            steps.append("prepare-tools (tiles, PZTools.ini, Rules.txt patches)")
         if project:
             out = project.parent
             c = [_cells(cells)] if cells else []
             steps.append("hand-authored project")
             a = cli_argv(cli) + [f"--generate-map={project}"] + ([f"--cells={','.join(map(str, c[0]))}"] if c else [])
             log.write(f"\n$ {' '.join(a)}\n".encode()); log.flush()
-            if subprocess.run(a, cwd=work, env=env, stdout=log, stderr=subprocess.STDOUT, timeout=3600).returncode:
+            if run_tree(a, work, env, log, timeout):
                 raise BuildError("compile failed (see build.log)")
             name = mod_id
             mani = manifest(out)
@@ -234,7 +283,7 @@ def build(pins_path, cfg_path, work=None, cells=None, project=None, mod_id=None)
                 raise BuildError("knoxbuild failed (see build.log)")
             mani = manifest(out)
             steps.append("worlded compile (PZWorldEd_cli, patched)")
-            if R.run(COMPILE, out, cli, json.dumps(c)):
+            if R.run(COMPILE, out, cli, json.dumps(c), timeout, timeout=timeout + 120):
                 raise BuildError("compile failed (see build.log)")
         _scan(work / "build.log")
         mods = work / "mods"
@@ -245,7 +294,8 @@ def build(pins_path, cfg_path, work=None, cells=None, project=None, mod_id=None)
     shutil.copytree(edits.inside(mods / mod_id, mods), work / "payload")
     (work / "build-record.json").write_text(json.dumps(dict(
         payload=str(work / "payload"), manifest=mani, transformations=steps,
-        tools_version=P["tools_version"], knoxmap_tag=P["tag"]), indent=1), encoding="utf-8")
+        tools_version=P["tools_version"], knoxmap_tag=P["tag"],
+        prepare_tools=(rec if cfg.get("prepare_tools") else None)), indent=1), encoding="utf-8")
     return work
 
 

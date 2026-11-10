@@ -10,3 +10,7 @@ cell_size: 300                   # KnoxMap source-cell size in tiles (D-08); PA'
 cells: [[0, 0, 0, 0]]            # source cells to compile (x0,y0,x1,y1), overridable with `pa build --cells`
 # Network-backed optional data layers are switched off so nothing leaves the machine.
 settings: {landcover: "off", elevation: "flat", hospitals: "off", ne_context: 0, fill_gaps: 0, basement_share: 0, max_basement_depth: 0}  # no basements: only knoxlots (rust) can compile them, and the spike targets PZWorldEd_cli
+# Configure the work copy of the tools (tile sheets from the local game install, PZTools.ini, Rules.txt patches).
+# Read-only on the game; writes only under the work dir. Plan 01-02 did not cover tools configuration.
+prepare_tools: {game_dir: "C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid"}
+compile_timeout_s: 300           # a hidden Qt dialog must fail fast, not hang 30 minutes
