@@ -285,3 +285,12 @@ def test_base_python_real_home(tmp_path, monkeypatch):
     assert check(p) == []
     monkeypatch.setenv("LOCALAPPDATA", str(tmp_path))  # real home now user-writable
     assert any("user-writable" in why for _, why in check(p))
+
+
+def test_base_python_home_env_token(tmp_path, monkeypatch):
+    p, _, _ = venv_fixture(tmp_path)
+    monkeypatch.setenv("PA_TEST_BASE", "C:/base")
+    p.write_text(p.read_text().replace(f"'{HOME}'", "'%pa_test_base%/Python313'".replace("pa_test_base", "PA_TEST_BASE")))
+    assert check(p) == []  # %VAR% form verifies against pyvenv.cfg home
+    monkeypatch.delenv("PA_TEST_BASE")
+    assert any("base_python_home" in why for _, why in check(p))  # undefined var fails closed

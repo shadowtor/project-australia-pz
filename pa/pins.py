@@ -132,6 +132,12 @@ def base_manifest(home):
     return "".join(l + "\n" for l in sorted(set(lines)))
 
 
+def _expand(s):
+    """Expand %VAR% tokens (Windows style, any OS); an undefined variable leaves '%' behind -> None (fail closed)."""
+    out = re.sub(r"%([^%]+)%", lambda m: os.environ.get(m.group(1), m.group(0)), s or "")
+    return out if out and "%" not in out else None
+
+
 def _under(p, d):
     p, d = os.path.normcase(os.path.realpath(p)), os.path.normcase(os.path.realpath(d))
     return p == d or p.startswith(d.rstrip("\\/") + os.sep)
@@ -139,7 +145,7 @@ def _under(p, d):
 
 def _check_base_python(v, base, bad):
     """The venv `home` may be a user-writable Store alias dir; trust only the pinned real install, hashed."""
-    real = v.get("base_python_real_home")
+    real = _expand(v.get("base_python_real_home"))
     if not real or not os.path.isdir(real):
         return bad.append(("knoxmap_venv", f"base_python_real_home missing or not a directory: {real!r}"))
     for env in ("LOCALAPPDATA", "USERPROFILE"):
@@ -166,7 +172,8 @@ def _check_launcher(v, root, base, bad):
             kv[k.strip().lower()] = val.strip()
     if kv.get("include-system-site-packages", "").lower() != "false":
         bad.append(("knoxmap_venv", "pyvenv.cfg include-system-site-packages is not false"))
-    if not v.get("base_python_home") or os.path.normcase(os.path.normpath(kv.get("home", ""))) != os.path.normcase(os.path.normpath(v["base_python_home"])):
+    pinned_home = _expand(v.get("base_python_home"))
+    if not pinned_home or os.path.normcase(os.path.normpath(kv.get("home", ""))) != os.path.normcase(os.path.normpath(pinned_home)):
         bad.append(("knoxmap_venv", f"pyvenv.cfg home {kv.get('home')!r} != pinned base_python_home"))
     _check_base_python(v, base, bad)
     man = _path(base, v.get("launcher_manifest", ""))
