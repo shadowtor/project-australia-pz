@@ -7,3 +7,5 @@ generated/
 releases/
 current.txt
 reports/
+.planning/state.json
+.planning/milestone.lock

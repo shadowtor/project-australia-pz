@@ -1,0 +1,24 @@
+name: Bug report
+description: Something in the pa tooling or tests does not work as documented
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: The command you ran, what you expected, and what you got. Paste output as text.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: Windows version, Python version, commit hash, and whether the game and mapping tools are installed.
+    validations:
+      required: true

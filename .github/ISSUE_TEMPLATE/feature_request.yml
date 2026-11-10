@@ -1,0 +1,17 @@
+name: Feature request
+description: Suggest a change to the tooling or the map plan
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or goal
+      description: What you want to achieve. Check .planning/PROJECT.md first, since out-of-scope items are likely to be declined.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+    validations:
+      required: true
